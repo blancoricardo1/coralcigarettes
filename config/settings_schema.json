@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Theme settings",
+    "settings": [
+      {
+        "type": "text",
+        "id": "dummy_text",
+        "label": "Dummy Text",
+        "default": "Placeholder"
+      }
+    ]
+  }
+]

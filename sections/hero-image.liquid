@@ -1,0 +1,25 @@
+<div class="hero">
+  {% if section.settings.hero_image %}
+    <img src="{{ section.settings.hero_image | image_url: width: 1600 }}" alt="Hero Image">
+  {% else %}
+    <p>Add a hero image in the theme editor.</p>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Hero Image",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero Image"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Block"
+    }
+  ]
+}
+{% endschema %}
