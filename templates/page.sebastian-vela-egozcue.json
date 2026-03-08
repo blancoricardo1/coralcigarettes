@@ -1,0 +1,13 @@
+{
+  "sections": {
+    "main": {
+      "type": "portrait-manifesto",
+      "settings": {
+        "name": "Sebastian Vela Egozcue",
+        "role": "Founder / Creative Director",
+        "manifesto": "manifesto / artist statement"
+      }
+    }
+  },
+  "order": ["main"]
+}

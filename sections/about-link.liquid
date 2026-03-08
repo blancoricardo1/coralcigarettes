@@ -1,0 +1,57 @@
+<section class="about-link">
+  <a
+    class="about-link__anchor"
+    href="https://music.apple.com/us/album/deb%C3%AD-tirar-m%C3%A1s-fotos/1787022393"
+    target="_blank"
+    rel="noopener"
+  >
+    Link
+  </a>
+</section>
+
+{% stylesheet %}
+  @import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:wght@400&display=swap');
+  @import url(https://db.onlinewebfonts.com/c/802e05d5e7ea18334a1eeb10dc9dd7b6?family=F1545+Faucheur+W01+Italic);
+  @import url(https://db.onlinewebfonts.com/c/955a8122e13e73ec62cd5253926913fa?family=F1545+Faucheur+W01+Normal);
+  .about-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: 32px 16px;
+    min-height: calc(100vh - var(--header-height, 5rem) - 40px);
+  }
+
+  .about-link__anchor {
+    font-family: 'F1545 Faucheur W01 Normal', serif;
+    font-size: clamp(1.6rem, 2.4vw + 0.5rem, 2.4rem);
+    color: #000;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  @media (max-width: 720px) {
+    .about-link {
+      flex-direction: column;
+      text-align: center;
+      gap: 12px;
+      min-height: calc(100vh - var(--header-height, 5rem) - 20px);
+    }
+    .about-link__note {
+      white-space: normal;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "About Link",
+  "settings": [],
+  "presets": [
+    {
+      "name": "About Link"
+    }
+  ]
+}
+{% endschema %}

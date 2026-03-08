@@ -1,0 +1,63 @@
+{% comment %}
+  Minimal landing section with centered copy on a white background.
+  It stretches to full viewport height and keeps content centered on all devices.
+{% endcomment %}
+
+<section class="centered-landing">
+  <div class="centered-landing__content">
+    <h1>{{ shop.name }}</h1>
+  </div>
+</section>
+
+{% stylesheet %}
+  .centered-landing {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    background: #fff;
+    text-align: center;
+    padding: 32px 16px;
+  }
+
+  .centered-landing__content {
+    max-width: 720px;
+    width: min(90vw, 720px);
+    margin: 0 auto;
+    color: #111;
+  }
+
+  .centered-landing h1 {
+    font-family: 'IM Fell English', serif;
+
+    font-size: clamp(2.4rem, 4vw + 1.4rem, 4rem);
+    line-height: 1.05;
+    margin: 0;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+
+  .centered-landing__subheading {
+    margin-top: 1.25rem;
+    font-size: clamp(1rem, 2vw + 0.5rem, 1.25rem);
+    line-height: 1.6;
+    color: #444;
+  }
+
+  @media (max-width: 640px) {
+    .centered-landing {
+      padding: 32px 16px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Centered landing",
+
+  "presets": [
+    {
+      "name": "Centered landing"
+    }
+  ]
+}
+{% endschema %}

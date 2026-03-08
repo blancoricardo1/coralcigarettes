@@ -1,0 +1,696 @@
+<header>
+  <button class="nav-toggle-btn" aria-label="Toggle navigation">
+    <span class="hamburger" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+    </span>
+  </button>
+
+  <nav class="nav-drawer">
+    <button type="button" class="nav-drawer__close" aria-label="Close menu">×</button>
+    <div class="nav-drawer__links">
+      <a class="nav-drawer__link" href="{{ routes.collections_url | default: '#' }}">Shop</a>
+      <a class="nav-drawer__link" href="/pages/about">About Us</a>
+    </div>
+
+    <a class="nav-drawer__name" href="/pages/sebastian-vela-egozcue">
+      {{ section.settings.signature | default: 'Sebastian Vela Egozcue' }}
+    </a>
+
+    <div class="nav-drawer__newsletter">
+      {% form 'customer', class: 'nav-drawer__newsletter-form' %}
+        <div class="nav-drawer__newsletter-row">
+          <input
+            type="email"
+            name="contact[email]"
+            required
+            placeholder="{{ section.settings.newsletter_placeholder | default: 'Enter your email' }}"
+            aria-label="Email"
+          >
+          <button type="submit">{{ section.settings.newsletter_button | default: 'Subscribe' }}</button>
+        </div>
+        <input type="hidden" name="contact[tags]" value="newsletter">
+      {% endform %}
+    </div>
+  </nav>
+
+  {% unless template.name == 'index' %}
+    <a class="header__brand" href="{{ routes.root_url }}">{{ shop.name }}</a>
+  {% endunless %}
+
+  <div class="header__icons">
+    <button type="button" class="cart-trigger" aria-expanded="false" aria-controls="cart-drawer">
+      {% if cart.item_count > 0 %}
+        <sup>{{ cart.item_count }}</sup>
+      {% endif %}
+      {{ 'icon-cart.svg' | inline_asset_content }}
+    </button>
+    <noscript>
+      <a href="{{ routes.cart_url }}">{{ 'Cart' | t }}</a>
+    </noscript>
+  </div>
+</header>
+
+<aside id="cart-drawer" class="cart-drawer" aria-hidden="true">
+  <div class="cart-drawer__panel">
+    <div class="cart-drawer__header">
+      <button type="button" class="cart-drawer__close" aria-label="Close cart">×</button>
+      <div class="cart-drawer__title">{{ shop.name }}</div>
+    </div>
+    <div class="cart-drawer__items">
+      {% if cart.item_count == 0 %}
+        <div class="cart-empty">
+          <p class="cart-empty__title">Your Shopping Cart is Empty</p>
+        </div>
+      {% else %}
+        {% for item in cart.items %}
+          <div class="cart-item">
+            {% if item.image %}
+              <img
+                src="{{ item.image | image_url: width: 96 }}"
+                alt="{{ item.title | escape }}"
+                loading="lazy"
+                width="96"
+                height="96"
+              >
+            {% endif %}
+            <div class="cart-item__meta">
+              <p class="cart-item__title">{{ item.product.title }}</p>
+              <p class="cart-item__variant">{{ item.variant.title }}</p>
+              <p class="cart-item__qty">Qty: {{ item.quantity }}</p>
+              <p class="cart-item__price">{{ item.final_line_price | money }}</p>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+    {% if cart.item_count > 0 %}
+      <div class="cart-drawer__footer">
+        <div class="cart-drawer__total">
+          <span>Total</span>
+          <strong>{{ cart.total_price | money }}</strong>
+        </div>
+        <div class="cart-drawer__actions">
+          <a class="cart-drawer__view" href="{{ routes.cart_url }}">View Cart</a>
+          <a class="cart-drawer__checkout" href="{{ routes.cart_url }}">Checkout</a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+  <button class="cart-drawer__overlay" type="button" aria-label="Close cart"></button>
+</aside>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const headerEl = document.querySelector('header');
+    const landing = document.querySelector('.centered-landing');
+    const cartDrawer = document.getElementById('cart-drawer');
+    const cartTrigger = document.querySelector('.cart-trigger');
+    const cartClose = document.querySelector('.cart-drawer__close');
+    const cartOverlay = document.querySelector('.cart-drawer__overlay');
+
+    if (!headerEl) return;
+
+    const computeThreshold = () => {
+      if (!landing) return Number.POSITIVE_INFINITY;
+      return Math.max(0, landing.offsetHeight - headerEl.offsetHeight);
+    };
+
+    let threshold = computeThreshold();
+
+    if (landing) {
+      const toggle = () => {
+        if (window.scrollY >= threshold) {
+          headerEl.classList.add('header--on-dark');
+        } else {
+          headerEl.classList.remove('header--on-dark');
+        }
+      };
+
+      toggle();
+      window.addEventListener('scroll', toggle, { passive: true });
+      window.addEventListener('resize', () => {
+        threshold = computeThreshold();
+        toggle();
+      });
+    }
+
+    const openCart = () => {
+      if (!cartDrawer) return;
+      cartDrawer.classList.add('cart-drawer--open');
+      cartDrawer.setAttribute('aria-hidden', 'false');
+      if (cartTrigger) cartTrigger.setAttribute('aria-expanded', 'true');
+    };
+
+    const closeCart = () => {
+      if (!cartDrawer) return;
+      cartDrawer.classList.remove('cart-drawer--open');
+      cartDrawer.setAttribute('aria-hidden', 'true');
+      if (cartTrigger) cartTrigger.setAttribute('aria-expanded', 'false');
+    };
+
+    cartTrigger?.addEventListener('click', openCart);
+    cartClose?.addEventListener('click', closeCart);
+    cartOverlay?.addEventListener('click', closeCart);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeCart();
+        closeNav();
+      }
+    });
+
+    const navToggleBtn = document.querySelector('.nav-toggle-btn');
+    const navDrawer = document.querySelector('.nav-drawer');
+    const navClose = document.querySelector('.nav-drawer__close');
+
+    const closeNav = () => {
+      document.body.classList.remove('nav-open');
+    };
+    const openNav = () => {
+      document.body.classList.add('nav-open');
+    };
+
+    navToggleBtn?.addEventListener('click', () => {
+      if (document.body.classList.contains('nav-open')) {
+        closeNav();
+      } else {
+        openNav();
+      }
+    });
+    navClose?.addEventListener('click', closeNav);
+  });
+</script>
+
+{% stylesheet %}
+  @import url(https://db.onlinewebfonts.com/c/802e05d5e7ea18334a1eeb10dc9dd7b6?family=F1545+Faucheur+W01+Italic);
+
+  :root {
+    --header-height: 5rem;
+  }
+
+  body:not(.template-index) {
+    padding-top: var(--header-height);
+  }
+
+  header {
+    height: var(--header-height);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    color: var(--color-foreground, #111);
+    background: transparent;
+    padding: 0 clamp(16px, 4vw, 32px);
+    box-shadow: none;
+    transition: color 180ms ease, background-color 180ms ease;
+    --header-icon-filter: none;
+  }
+  header a {
+    position: relative;
+    text-decoration: none;
+    color: currentColor;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  header a sup {
+    position: absolute;
+    left: 100%;
+    overflow: hidden;
+    max-width: var(--page-margin);
+  }
+  header svg {
+    width: 3.2rem;
+    filter: var(--header-icon-filter, none);
+  }
+
+  .header__brand {
+    justify-self: center;
+    font-size: 2rem;
+    font-family: 'IM Fell English', serif;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .header__icons {
+    color: inherit;
+    justify-self: end;
+  }
+
+  shopify-account,
+  shopify-account svg {
+    color: currentColor;
+    filter: var(--header-icon-filter, none);
+  }
+  header .header__icons {
+    display: flex;
+    gap: 1rem;
+  }
+
+  /* Hamburger */
+  .nav-toggle {
+    margin: 0;
+    position: relative;
+  }
+  .nav-toggle summary {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  .nav-toggle summary::-webkit-details-marker {
+    display: none;
+  }
+  .hamburger {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    width: 28px;
+  }
+  .hamburger span {
+    display: block;
+    height: 3px;
+    background: currentColor;
+    border-radius: 999px;
+    width: 100%;
+    transition: transform 160ms ease, opacity 160ms ease;
+  }
+
+  .nav-toggle-btn {
+    background: none;
+    border: none;
+    padding: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: inherit;
+  }
+  .nav-toggle-btn:focus-visible {
+    outline: 1px solid #888;
+    outline-offset: 2px;
+  }
+  .nav-toggle-btn:hover {
+    opacity: 0.75;
+  }
+
+  /* Drawer */
+  .nav-drawer {
+    position: fixed;
+    top: clamp(12px, 2vw, 24px);
+    left: clamp(12px, 2vw, 24px);
+    width: min(520px, 96vw);
+    height: min(33vh, 280px);
+    max-height: 98vh;
+    overflow-y: auto;
+    background: #e6e6e6;
+    border: 1px solid #d2d2d2;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+    padding: 14px 18px 20px;
+    z-index: 70;
+    display: grid;
+    gap: 10px;
+    font-family: 'F1545 Faucheur W01 Normal', serif;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(8px) translateY(-8px);
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+  body.nav-open .nav-drawer {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0) translateY(0);
+  }
+  .nav-drawer__close {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    width: fit-content;
+    padding: 4px 6px;
+    justify-self: start;
+    line-height: 1;
+  }
+  .nav-drawer__links {
+    display: grid;
+    gap: 8px;
+    justify-items: start;
+  }
+  .nav-drawer__link {
+    font-size: 1.5rem;
+    color: #111;
+    text-decoration: none;
+    padding: 4px 0;
+    position: relative;
+    font-family: 'F1545 Faucheur W01 Normal', serif;
+    font-weight: 700;
+  }
+  .nav-drawer__link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    background: #000;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 160ms ease;
+  }
+  .nav-drawer__link:hover::after,
+  .nav-drawer__link:focus-visible::after {
+    transform: scaleX(1);
+  }
+  .nav-drawer__name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: 'F1545 Faucheur W01 Normal', serif;
+    color: #111;
+    margin-top: 4px;
+    text-decoration: none;
+    text-align: left;
+    justify-self: start;
+    position: relative;
+  }
+  .nav-drawer__name::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    background: #000;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 160ms ease;
+  }
+  .nav-drawer__name:hover,
+  .nav-drawer__name:focus-visible {
+    text-decoration: none;
+    transform: none;
+  }
+  .nav-drawer__name:hover::after,
+  .nav-drawer__name:focus-visible::after {
+    transform: scaleX(1);
+  }
+  .nav-drawer__newsletter {
+    margin-top: 6px;
+  }
+  .nav-drawer__newsletter-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+  }
+  .nav-drawer__newsletter input[type='email'] {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #111;
+    padding: 8px 4px;
+    font-size: 1.5rem;
+    font-family: 'F1545 Faucheur W01 Italic', serif;
+    text-align: center;
+  }
+  .nav-drawer__newsletter input[type='email']::placeholder {
+    text-align: center;
+  }
+  .nav-drawer__newsletter button {
+    background: none;
+    border: 1px solid #111;
+    padding: 8px 14px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+    font-family: 'F1545 Faucheur W01 Normal', serif;
+  }
+
+  /* Cart drawer */
+  .cart-trigger {
+    background: none;
+    border: none;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    color: inherit;
+    cursor: pointer;
+  }
+  .cart-trigger sup {
+    position: absolute;
+    top: -7px;
+    right: -11px;
+    background: currentColor;
+    color: #000;
+    border-radius: 999px;
+    padding: 3px 6px;
+    font-size: 0.68rem;
+    line-height: 1;
+  }
+
+  .cart-drawer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 60;
+    font-family: 'F1545 Faucheur W01 Normal', serif;
+    opacity: 0;
+    transform: translateX(8px) translateY(-8px);
+    transition: transform 180ms ease, opacity 180ms ease;
+  }
+  .cart-drawer__overlay {
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    opacity: 0;
+    transition: opacity 150ms ease;
+    z-index: 1;
+  }
+  .cart-drawer__panel {
+    position: absolute;
+    top: clamp(12px, 2vw, 24px);
+    right: clamp(12px, 2vw, 24px);
+    width: min(520px, 96vw);
+    height: min(33vh, 240px);
+    max-height: 98vh;
+    background: #e6e6e6;
+    color: #111;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    transform: translateX(8px) translateY(-8px);
+    transition: transform 180ms ease, opacity 180ms ease;
+    box-shadow: 0 10px 36px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    border: 1px solid #d6d6d6;
+    z-index: 2;
+  }
+  .cart-drawer--open {
+    pointer-events: auto;
+  }
+  .cart-drawer--open .cart-drawer__overlay {
+    opacity: 1;
+  }
+  .cart-drawer--open .cart-drawer__panel {
+    transform: translateX(0) translateY(0);
+    opacity: 1;
+  }
+  .cart-drawer--open {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+  .cart-drawer__header {
+    padding: 14px 18px;
+    border-bottom: 1px solid #c9c9c9;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    column-gap: 0;
+  }
+  .cart-drawer__title {
+    font-family: 'IM Fell English', serif;
+    padding-top: 2px;
+    font-size: 1.5rem;
+    letter-spacing: 0.02em;
+    text-align: center;
+  }
+  .cart-drawer__close {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 8px;
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 120ms ease;
+  }
+  .cart-drawer__close:hover,
+  .cart-drawer__close:focus-visible {
+    cursor: pointer;
+    opacity: 0.7;
+  }
+  .cart-drawer__items {
+    overflow-y: auto;
+    padding: 12px 18px;
+    display: grid;
+    gap: 0;
+  }
+  .cart-item {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #cfcfcf;
+  }
+  .cart-item:last-child {
+    border-bottom: none;
+    padding-bottom: 12px;
+  }
+  .cart-item img {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #f5f5f5;
+  }
+  .cart-item__meta p {
+    margin: 2px 0;
+    font-family: 'F1545 Faucheur W01 Normal', serif;
+    font-size: 0.78rem;
+    line-height: 1.3;
+  }
+  .cart-item__title {
+    font-weight: 400;
+  }
+  .cart-item__variant {
+    color: #444;
+  }
+  .cart-item__qty,
+  .cart-item__price {
+    font-size: 0.8rem;
+  }
+  .cart-drawer__footer {
+    padding: 14px 18px;
+    border-top: 1px solid #c9c9c9;
+    border-bottom: none;
+    display: grid;
+    gap: 12px;
+  }
+  .cart-drawer__total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+  }
+  .cart-drawer__total span {
+    font-family: 'F1545 Faucheur W01 Normal', serif;
+  }
+  .cart-drawer__total strong {
+    font-family: 'F1545 Faucheur W01 Normal', serif;
+    font-weight: 400;
+  }
+  .cart-drawer__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+    border: 1px solid #bcbcbc;
+  }
+  .cart-drawer__view,
+  .cart-drawer__checkout {
+    display: grid;
+    place-items: center;
+    padding: 12px;
+    text-decoration: none;
+    font-family: 'F1545 Faucheur W01 Normal', serif;
+    font-size: 0.95rem;
+    color: #000;
+  }
+  .cart-drawer__view {
+    font-style: italic;
+    border-right: 1px solid #bcbcbc;
+  }
+  .cart-drawer__checkout {
+    background: #f7f7f7;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+  }
+
+  .cart-empty {
+    padding: 24px 8px 32px;
+    text-align: center;
+    color: #222;
+    display: grid;
+    gap: 14px;
+  }
+  .cart-empty__title {
+    padding-top: 34px;
+    font-size: 1.5rem;
+    font-style: normal;
+    text-decoration: underline;
+    margin: 0;
+    font-family: 'F1545 Faucheur W01 Italic', serif;
+    font-weight: 400;
+    text-align: center center;
+  }
+  .cart-empty__hint {
+    font-size: 0.8rem;
+    margin: 0;
+  }
+
+  /* Simple X animation when open */
+  .nav-toggle[open] .hamburger span:nth-child(1) {
+    transform: translateY(9px) rotate(45deg);
+  }
+  .nav-toggle[open] .hamburger span:nth-child(2) {
+    opacity: 0;
+  }
+  .nav-toggle[open] .hamburger span:nth-child(3) {
+    transform: translateY(-9px) rotate(-45deg);
+  }
+
+  .header--on-dark {
+    color: #fff;
+    --header-icon-filter: invert(1) brightness(2);
+  }
+
+  .header--on-dark .nav-drawer {
+    background: rgba(0, 0, 0, 0.9);
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+  }
+
+  @media (max-width: 640px) {
+    header {
+      padding-inline: 8px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:general.header",
+  "settings": [
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "t:labels.menu"
+    },
+    {
+      "type": "link_list",
+      "id": "customer_account_menu",
+      "label": "t:labels.customer_account_menu",
+      "default": "customer-account-main-menu",
+      "info": "Not used (account icon removed)"
+    }
+  ]
+}
+{% endschema %}

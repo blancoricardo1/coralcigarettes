@@ -1,0 +1,127 @@
+<section class="portrait-manifesto">
+  <div class="portrait-manifesto__image">
+    {% if section.settings.image %}
+      {{ section.settings.image | image_url: width: 900 | image_tag: loading: 'lazy', alt: section.settings.name }}
+    {% else %}
+      <div class="portrait-manifesto__placeholder">Add portrait</div>
+    {% endif %}
+    <p class="portrait-manifesto__name">{{ section.settings.name }}</p>
+    <p class="portrait-manifesto__role">{{ section.settings.role }}</p>
+  </div>
+
+  <div class="portrait-manifesto__text">
+    {{ section.settings.manifesto | newline_to_br }}
+  </div>
+</section>
+
+{% stylesheet %}
+  @import url(https://db.onlinewebfonts.com/c/802e05d5e7ea18334a1eeb10dc9dd7b6?family=F1545+Faucheur+W01+Italic);
+  @import url(https://db.onlinewebfonts.com/c/955a8122e13e73ec62cd5253926913fa?family=F1545+Faucheur+W01+Normal);
+  .portrait-manifesto {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(24px, 4vw, 48px);
+    align-items: start;
+    min-height: 70vh;
+    padding: clamp(24px, 5vw, 64px);
+  }
+
+  .portrait-manifesto__image {
+    border: none;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+    justify-items: center;
+  }
+  .portrait-manifesto__image img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    display: block;
+  }
+  .portrait-manifesto__placeholder {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    display: grid;
+    place-items: center;
+    border: 1px dashed #999;
+    color: #666;
+    font-size: 0.9rem;
+  }
+  .portrait-manifesto__name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    font-family: 'F1545 Faucheur W01 Normal', serif;
+    margin: 0;
+    text-align: center;
+  }
+  .portrait-manifesto__role {
+    margin: 0;
+    font-size: 1.05rem;
+    color: #444;
+    font-family: 'F1545 Faucheur W01 Italic', serif;
+    font-style: normal;
+    text-align: center;
+  }
+
+  .portrait-manifesto__text {
+    border: 1px solid #3a3a3a;
+    min-height: 100%;
+    padding: clamp(24px, 3vw, 40px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-family: 'F1545 Faucheur W01 Italic', serif;
+    font-size: 1rem;
+  }
+  .portrait-manifesto input::placeholder,
+  .portrait-manifesto textarea::placeholder {
+    font-family: 'F1545 Faucheur W01 Italic', serif;
+  }
+
+  @media (max-width: 900px) {
+    .portrait-manifesto {
+      grid-template-columns: 1fr;
+    }
+    .portrait-manifesto__text {
+      min-height: 40vh;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Portrait & Manifesto",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Portrait image"
+    },
+    {
+      "type": "text",
+      "id": "name",
+      "label": "Name",
+      "default": "Sebastian Vela Egozcue"
+    },
+    {
+      "type": "text",
+      "id": "role",
+      "label": "Role",
+      "default": "Founder / Creative Director"
+    },
+    {
+      "type": "textarea",
+      "id": "manifesto",
+      "label": "Manifesto text",
+      "default": "manifesto / artist statement"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Portrait & Manifesto"
+    }
+  ]
+}
+{% endschema %}
